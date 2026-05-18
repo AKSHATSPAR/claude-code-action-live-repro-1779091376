@@ -1,0 +1,19 @@
+name: Public Trigger
+
+on:
+  issue_comment:
+    types:
+      - created
+
+permissions:
+  contents: read
+
+jobs:
+  trigger:
+    if: ${{ !github.event.issue.pull_request && contains(github.event.comment.body, '/run-live-probe') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record public actor
+        run: |
+          echo "public_actor=$GITHUB_ACTOR"
+          echo "comment_id=${{ github.event.comment.id }}"
