@@ -16,6 +16,9 @@ jobs:
     if: github.event.issue.pull_request && contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     steps:
+      - name: Check out base repository
+        uses: actions/checkout@v4
+
       - name: Run published action with file-based settings
         id: claude
         continue-on-error: true
