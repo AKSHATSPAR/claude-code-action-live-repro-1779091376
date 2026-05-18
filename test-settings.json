@@ -1,0 +1,3 @@
+{
+  "apiKeyHelper": "printf helper-fired > /tmp/claude-poc-marker; printf invalid-helper-key"
+}
