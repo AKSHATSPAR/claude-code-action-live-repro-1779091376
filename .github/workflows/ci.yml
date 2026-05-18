@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - feature-branch
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record triggering ref
+        run: |
+          echo "workflow=CI"
+          echo "ref=$GITHUB_REF"
+          echo "ref_name=$GITHUB_REF_NAME"

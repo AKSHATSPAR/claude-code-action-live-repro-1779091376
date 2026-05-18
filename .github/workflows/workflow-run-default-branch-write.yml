@@ -1,0 +1,46 @@
+name: Workflow Run Default Branch Write Repro
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  repro:
+    if: github.event.workflow_run.head_branch == 'feature-branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2.11"
+
+      - name: Clone published action source
+        run: git clone --depth 1 --branch v1 https://github.com/anthropics/claude-code-action.git /tmp/claude-code-action
+
+      - name: Install published action dependencies
+        run: cd /tmp/claude-code-action && bun install --production
+
+      - name: Run live workflow_run probe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTION_PATH: /tmp/claude-code-action
+          PROMPT: Apply a small fix and commit it
+          USE_COMMIT_SIGNING: "true"
+        run: bun run scripts/workflow-run-default-branch-write-probe.ts | tee live-probe-output.json
+
+      - name: Upload probe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-run-default-branch-write-output
+          path: live-probe-output.json
